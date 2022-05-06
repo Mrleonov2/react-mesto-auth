@@ -172,7 +172,7 @@ const [email,setEmail] =React.useState('');
     <div className="App">
       <CurrentUserContext.Provider value={currentUser}>
         <Switch>
-          <Route exact path={"/"}>
+          <ProtectedRoute exact path="/" loggedIn={loggedIn} >
             <Header
               children={
                 <div>
@@ -197,7 +197,7 @@ const [email,setEmail] =React.useState('');
               cards={cards}
             />
             <Footer />
-          </Route>
+          </ProtectedRoute>
           <Route path="/sign-up">
             <Header
               children={
@@ -218,8 +218,8 @@ const [email,setEmail] =React.useState('');
             />
             <Login handleLogin={handleLogin} />
           </Route>
-          <Route exact path="/">
-            {loggedIn ? <Redirect to="/" /> : <Redirect to="/login" />}
+          <Route>
+            {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
           </Route>
         </Switch>
         <EditProfilePopup

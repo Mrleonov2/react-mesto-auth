@@ -1,22 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Register.css";
-import * as auth from "../../auth.js";
-
-function Register({handleRegister}) {
-  const [registerValue,setRegisterValue]= React.useState({email:'',password:''});
+import { withRouter } from "react-router-dom";
+function Register({ handleRegister }) {
+  const [registerValue, setRegisterValue] = useState({
+    email: "",
+    password: "",
+  });
   function handleChange(e) {
-    setRegisterValue({...registerValue ,[e.target.name]:e.target.value});
+    setRegisterValue({ ...registerValue, [e.target.name]: e.target.value });
   }
   function handleSubmit(e) {
     e.preventDefault();
     if (!registerValue.password || !registerValue.email) {
       return;
     }
-    handleRegister(registerValue.password, registerValue.email).catch((err) => console.log(err))
+    handleRegister(registerValue.password, registerValue.email).catch((err) =>
+      console.log(err)
+    );
   }
   return (
     <div className="register">
-      <form className="register__form" onChange={handleChange} onSubmit={handleSubmit}>
+      <form
+        className="register__form"
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      >
         <h2 className="register__heading">Регистрация</h2>
         <input
           id="email"
@@ -42,4 +50,4 @@ function Register({handleRegister}) {
     </div>
   );
 }
-export default Register;
+export default withRouter(Register);
