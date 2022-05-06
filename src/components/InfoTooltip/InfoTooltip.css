@@ -1,0 +1,8 @@
+.tooltip__image{
+  max-width: 120px;
+  align-self: center;
+  text-align: center;
+}
+.tooltip__heading{
+  margin: 32px 0 23px;
+}
