@@ -23,7 +23,7 @@ function Login({ handleLogin }) {
     <div className="login">
       <form
         className="login__form"
-        onChange={handleChange}
+        
         onSubmit={handleSubmit}
       >
         <h2 className="login__heading">Вход</h2>
@@ -34,6 +34,7 @@ function Login({ handleLogin }) {
           type="email"
           value={loginValue.email}
           name="email"
+          onChange={handleChange}
         ></input>
         <input
           id="password"
@@ -42,6 +43,7 @@ function Login({ handleLogin }) {
           type="password"
           value={loginValue.password}
           name="password"
+          onChange={handleChange}
         ></input>
         <button className="login__submit" type="submit">
           Войти

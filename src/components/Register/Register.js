@@ -22,7 +22,6 @@ function Register({ handleRegister }) {
     <div className="register">
       <form
         className="register__form"
-        onChange={handleChange}
         onSubmit={handleSubmit}
       >
         <h2 className="register__heading">Регистрация</h2>
@@ -33,6 +32,7 @@ function Register({ handleRegister }) {
           type="email"
           value={registerValue.email}
           name="email"
+          onChange={handleChange}
         ></input>
         <input
           id="password"
@@ -41,6 +41,7 @@ function Register({ handleRegister }) {
           type="password"
           value={registerValue.password}
           name="password"
+          onChange={handleChange}
         ></input>
         <button className="register__submit" type="submit">
           Зарегистрироваться

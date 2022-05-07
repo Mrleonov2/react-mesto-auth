@@ -9,7 +9,7 @@ import React from "react";
 import Register from "./Register/Register";
 import Login from "./Login/Login";
 import InfoTooltip from "./InfoTooltip/InfoTooltip";
-import * as auth from '../auth.js';
+import * as auth from "../auth.js";
 import {
   Route,
   Switch,
@@ -37,13 +37,12 @@ function App() {
     name: "",
     about: "",
     avatar: "",
-    
   });
-  
+
   const [cards, setCards] = React.useState([]);
   const [isLoading, setLoading] = React.useState(false);
   const [loggedIn, setloggedIn] = React.useState(false);
-const [email,setEmail] =React.useState('');
+  const [email, setEmail] = React.useState("");
   React.useEffect(() => {
     Promise.all([api.getProfile(), api.getInitialCards()])
       .then(([userData, initialCards]) => {
@@ -54,39 +53,55 @@ const [email,setEmail] =React.useState('');
         console.log(err);
       });
   }, []);
+React.useEffect(()=>{handleTokenCheck()},[])
   const history = useHistory();
   function signOut() {
     localStorage.removeItem("jwt");
-    history.push("/login");
+    setloggedIn(false);
+    history.push("/sign-in");
   }
-  function handleLogin({password,email}) {
-     return auth
-      .authorize(password,email)
-      .then((data) => {if (!data.jwt) {
-        return
-        }
-        localStorage.setItem('jwt', data.jwt);
-        setloggedIn(true);
-          history.push("/");
-      }).catch((err) => console.log(err));
-  }
-  const handleRegister = (username, password, email) => {
+  React.useEffect(() => {
+    if (localStorage.getItem("jwt")) {
+      history.push("/");
+      return;
+    }else{
+      history.push("/sign-in");
+    }
+    
+  }, [loggedIn]);
+
+  function handleLogin(password, email) {
     return auth
-        .register(username, password, email)
-        .then((res) => {
-          if (res.statusCode !== 400) {
-            history.push("/login");
-          }
-            
-        });
-}
-  function  handleTokenCheck(){
-    if (localStorage.getItem('jwt')){
-      const jwt = localStorage.getItem('jwt');
-      auth.checkToken(jwt).then((res)=>{ if (res){  history.push("/");
-      setEmail(res.email)
-    setloggedIn(true)}})
-    }}
+      .authorize(password, email)
+      .then((data) => {
+        if (!data.token) {
+          return;
+        }
+        localStorage.setItem("jwt", data.token);
+        setloggedIn(true);
+        history.push("/");
+      })
+      .catch((err) => console.log(err));
+  }
+  const handleRegister = (password, email) => {
+    return auth.register(password, email).then((res) => {
+      if (res.statusCode !== 400) {
+        history.push("/sign-in");
+      }
+    });
+  };
+  function handleTokenCheck() {
+    if (localStorage.getItem("jwt")) {
+      const jwt = localStorage.getItem("jwt");
+      auth.checkToken(jwt).then((res) => {
+        if (res) {
+          history.push("/");
+          setEmail(res.email);
+          setloggedIn(true);
+        }
+      });
+    }
+  }
   function handleCardLike(card, isLiked) {
     api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
       setCards((cards) => cards.map((c) => (c._id === card._id ? newCard : c)));
@@ -94,7 +109,7 @@ const [email,setEmail] =React.useState('');
   }
 
   function handleCardDelete(card) {
-    api.deleteCard(card._id).then((newCard) => {
+    api.deleteCard(card._id).then(() => {
       setCards((cards) => cards.filter((c) => c._id !== card._id));
     });
   }
@@ -172,13 +187,12 @@ const [email,setEmail] =React.useState('');
     <div className="App">
       <CurrentUserContext.Provider value={currentUser}>
         <Switch>
-          <ProtectedRoute exact path="/" loggedIn={loggedIn} >
+          <ProtectedRoute exact path="/" loggedIn={loggedIn}>
             <Header
               children={
                 <div>
                   <p className="header__link">{email}</p>
                   <button
-                    to="/sign-in"
                     className="header__link header__button button"
                     onClick={signOut}
                   >
@@ -206,7 +220,7 @@ const [email,setEmail] =React.useState('');
                 </Link>
               }
             />
-            <Register handleRegister={handleRegister}/>
+            <Register handleRegister={handleRegister} />
           </Route>
           <Route path="/sign-in">
             <Header
