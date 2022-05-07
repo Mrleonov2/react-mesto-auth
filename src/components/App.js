@@ -15,8 +15,8 @@ import {
   Switch,
   Redirect,
   withRouter,
-  Link,
   useHistory,
+  Link,
 } from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
@@ -43,6 +43,7 @@ function App() {
   const [isLoading, setLoading] = React.useState(false);
   const [loggedIn, setloggedIn] = React.useState(false);
   const [email, setEmail] = React.useState("");
+  const history = useHistory();
   React.useEffect(() => {
     Promise.all([api.getProfile(), api.getInitialCards()])
       .then(([userData, initialCards]) => {
@@ -53,39 +54,29 @@ function App() {
         console.log(err);
       });
   }, []);
-React.useEffect(()=>{handleTokenCheck()},[])
-  const history = useHistory();
+
+  React.useEffect(() => {
+    handleTokenCheck();
+  }, []);
   function signOut() {
     localStorage.removeItem("jwt");
     setloggedIn(false);
     history.push("/sign-in");
   }
-  React.useEffect(() => {
-    if (localStorage.getItem("jwt")) {
-      history.push("/");
-      return;
-    }else{
-      history.push("/sign-in");
-    }
-    
-  }, [loggedIn]);
 
   function handleLogin(password, email) {
-    return auth
-      .authorize(password, email)
-      .then((data) => {
-        if (!data.token) {
-          return;
-        }
-        localStorage.setItem("jwt", data.token);
-        setloggedIn(true);
-        history.push("/");
-      })
-      .catch((err) => console.log(err));
+    return auth.authorize(password, email).then((data) => {
+      if (!data.token) {
+        return;
+      }
+      localStorage.setItem("jwt", data.token);
+      setloggedIn(true);
+      history.push("/");
+    });
   }
   const handleRegister = (password, email) => {
     return auth.register(password, email).then((res) => {
-      if (res.statusCode !== 400) {
+      if (res.ok) {
         history.push("/sign-in");
       }
     });
@@ -95,9 +86,9 @@ React.useEffect(()=>{handleTokenCheck()},[])
       const jwt = localStorage.getItem("jwt");
       auth.checkToken(jwt).then((res) => {
         if (res) {
-          history.push("/");
-          setEmail(res.email);
+          setEmail(res.data.email);
           setloggedIn(true);
+          history.push("/");
         }
       });
     }
@@ -144,7 +135,7 @@ React.useEffect(()=>{handleTokenCheck()},[])
       .then((userData) => {
         setCurrentUser(userData);
       })
-      .then(() => {
+      .finally(() => {
         setEditProfilePopupOpen(false);
         setLoading(false);
       })
@@ -159,7 +150,7 @@ React.useEffect(()=>{handleTokenCheck()},[])
       .then((userData) => {
         setCurrentUser(userData);
       })
-      .then(() => {
+      .finally(() => {
         setEditAvatarPopupOpen(false);
         setLoading(false);
       })
@@ -178,7 +169,7 @@ React.useEffect(()=>{handleTokenCheck()},[])
       .catch((err) => {
         console.log(err);
       })
-      .then(() => {
+      .finally(() => {
         setAddPlacePopupOpen(false);
         setLoading(false);
       });
@@ -186,56 +177,53 @@ React.useEffect(()=>{handleTokenCheck()},[])
   return (
     <div className="App">
       <CurrentUserContext.Provider value={currentUser}>
-        <Switch>
-          <ProtectedRoute exact path="/" loggedIn={loggedIn}>
-            <Header
-              children={
-                <div>
-                  <p className="header__link">{email}</p>
-                  <button
-                    className="header__link header__button button"
-                    onClick={signOut}
-                  >
-                    Выйти
-                  </button>
-                </div>
-              }
-            />
-            <Main
-              onEditProfile={handleEditProfileClick}
-              onAddPlace={handleAddPlaceClick}
-              onEditAvatar={handleEditAvatarClick}
-              onCardClick={handleCardClick}
-              onCardLike={handleCardLike}
-              onCardDelete={handleCardDelete}
-              cards={cards}
-            />
-            <Footer />
-          </ProtectedRoute>
-          <Route path="/sign-up">
-            <Header
-              children={
-                <Link to="/sign-in" className="header__link button">
-                  Войти
-                </Link>
-              }
-            />
-            <Register handleRegister={handleRegister} />
-          </Route>
-          <Route path="/sign-in">
-            <Header
-              children={
-                <Link to="/sign-up" className="header__link button">
-                  Регистрация
-                </Link>
-              }
-            />
-            <Login handleLogin={handleLogin} />
-          </Route>
-          <Route>
-            {loggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
-          </Route>
-        </Switch>
+        <ProtectedRoute exact path="/" loggedIn={loggedIn}>
+          <Header
+            children={
+              <div>
+                <p className="header__link">{email}</p>
+                <button
+                  className="header__link header__button button"
+                  onClick={signOut}
+                >
+                  Выйти
+                </button>
+              </div>
+            }
+          />
+          <Main
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onEditAvatar={handleEditAvatarClick}
+            onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+            cards={cards}
+          />
+          <Footer />
+        </ProtectedRoute>
+        <Route path="/sign-up">
+          <Header
+            children={
+              <Link to="/sign-in" className="header__link button">
+                Войти
+              </Link>
+            }
+          />
+          <Register onRegister={handleRegister} />
+        </Route>
+        <Route path="/sign-in">
+          <Header
+            children={
+              <Link to="/sign-up" className="header__link button">
+                Регистрация
+              </Link>
+            }
+          />
+          <Login onLogin={handleLogin} />
+        </Route>
+        
+
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
           onClose={closeAllPopups}

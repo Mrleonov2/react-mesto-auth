@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Register.css";
 import { withRouter } from "react-router-dom";
-function Register({ handleRegister }) {
+function Register({ onRegister }) {
   const [registerValue, setRegisterValue] = useState({
     email: "",
     password: "",
@@ -14,7 +14,7 @@ function Register({ handleRegister }) {
     if (!registerValue.password || !registerValue.email) {
       return;
     }
-    handleRegister(registerValue.password, registerValue.email).catch((err) =>
+    onRegister(registerValue.password, registerValue.email).catch((err) =>
       console.log(err)
     );
   }
@@ -51,4 +51,4 @@ function Register({ handleRegister }) {
     </div>
   );
 }
-export default withRouter(Register);
+export default Register;

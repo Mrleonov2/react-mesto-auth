@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from "react-dom/client";
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter ,Switch} from 'react-router-dom';
 import App from '../src/components/App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
@@ -8,7 +8,9 @@ const root = createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
+    <Switch>
       <App /> 
+      </Switch>
     </BrowserRouter>
   </React.StrictMode>,
 );

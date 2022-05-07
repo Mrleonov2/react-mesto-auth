@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./Login.css";
 import { withRouter } from "react-router-dom";
-function Login({ handleLogin }) {
+function Login({ onLogin }) {
   const [loginValue, setLoginValue] = useState({
     email: "",
     password: "",
@@ -14,7 +14,7 @@ function Login({ handleLogin }) {
     if (!loginValue.password || !loginValue.email) {
       return;
     }
-    handleLogin(loginValue.password, loginValue.email).catch((err) =>
+    onLogin(loginValue.password, loginValue.email).catch((err) =>
       console.log(err)
     );
   }
@@ -52,4 +52,4 @@ function Login({ handleLogin }) {
     </div>
   );
 }
-export default withRouter(Login);
+export default Login;

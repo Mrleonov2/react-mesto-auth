@@ -10,5 +10,8 @@
   .header {
     min-height: 56px;
     margin: 28px auto 42px;
+    flex-direction: column-reverse;
+    align-items: center;
+    border-top: solid 1px rgb(84, 84, 84, 0.7);
   }
 }
