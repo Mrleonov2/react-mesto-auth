@@ -14,9 +14,7 @@ function Register({ onRegister }) {
     if (!registerValue.password || !registerValue.email) {
       return;
     }
-    onRegister(registerValue.password, registerValue.email).catch((err) =>
-      console.log(err)
-    );
+    onRegister(registerValue.password, registerValue.email)
   }
   return (
     <div className="register">

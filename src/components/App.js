@@ -28,6 +28,10 @@ function App() {
     React.useState(false);
   const [isAddPlacePopupOpen, setAddPlacePopupOpen] = React.useState(false);
   const [isEditAvatarPopupOpen, setEditAvatarPopupOpen] = React.useState(false);
+  const [isRegNotifyOpen, setRegNotifyOpen] = React.useState({
+    isOpen: false,
+    success: "",
+  });
   const [selectedCard, setSelectedCard] = React.useState({
     link: "",
     name: "",
@@ -65,44 +69,73 @@ function App() {
   }
 
   function handleLogin(password, email) {
-    return auth.authorize(password, email).then((data) => {
-      if (!data.token) {
-        return;
-      }
-      localStorage.setItem("jwt", data.token);
-      setloggedIn(true);
-      history.push("/");
-    });
+    return auth
+      .authorize(password, email)
+      .then((data) => {
+        if (!data.token) {
+          return;
+        }
+        localStorage.setItem("jwt", data.token);
+        setloggedIn(true);
+        history.push("/");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
   const handleRegister = (password, email) => {
-    return auth.register(password, email).then((res) => {
-      if (res.ok) {
-        history.push("/sign-in");
-      }
-    });
+    return auth
+      .register(password, email)
+      .then((res) => {
+        if (res) {
+          history.push("/sign-in");
+          setRegNotifyOpen({ isOpen: true, success: true });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setRegNotifyOpen({ isOpen: true, success: false });
+      });
   };
   function handleTokenCheck() {
     if (localStorage.getItem("jwt")) {
       const jwt = localStorage.getItem("jwt");
-      auth.checkToken(jwt).then((res) => {
-        if (res) {
-          setEmail(res.data.email);
-          setloggedIn(true);
-          history.push("/");
-        }
-      });
+      auth
+        .checkToken(jwt)
+        .then((res) => {
+          if (res) {
+            setEmail(res.data.email);
+            setloggedIn(true);
+            history.push("/");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   }
   function handleCardLike(card, isLiked) {
-    api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
-      setCards((cards) => cards.map((c) => (c._id === card._id ? newCard : c)));
-    });
+    api
+      .changeLikeCardStatus(card._id, !isLiked)
+      .then((newCard) => {
+        setCards((cards) =>
+          cards.map((c) => (c._id === card._id ? newCard : c))
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   function handleCardDelete(card) {
-    api.deleteCard(card._id).then(() => {
-      setCards((cards) => cards.filter((c) => c._id !== card._id));
-    });
+    api
+      .deleteCard(card._id)
+      .then(() => {
+        setCards((cards) => cards.filter((c) => c._id !== card._id));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
   function closeAllPopups(event) {
     if (
@@ -113,6 +146,7 @@ function App() {
       setAddPlacePopupOpen(false);
       setEditAvatarPopupOpen(false);
       setImagePopupOpen(false);
+      setRegNotifyOpen({ isOpen: false, success: "" });
     }
   }
   function handleEditAvatarClick() {
@@ -135,8 +169,10 @@ function App() {
       .then((userData) => {
         setCurrentUser(userData);
       })
-      .finally(() => {
+      .then(() => {
         setEditProfilePopupOpen(false);
+      })
+      .finally(() => {
         setLoading(false);
       })
       .catch((err) => {
@@ -150,8 +186,10 @@ function App() {
       .then((userData) => {
         setCurrentUser(userData);
       })
-      .finally(() => {
+      .then(() => {
         setEditAvatarPopupOpen(false);
+      })
+      .finally(() => {
         setLoading(false);
       })
       .catch((err) => {
@@ -166,11 +204,13 @@ function App() {
         console.log(newCard);
         setCards([newCard, ...cards]);
       })
+      .then(() => {
+        setAddPlacePopupOpen(false);
+      })
       .catch((err) => {
         console.log(err);
       })
       .finally(() => {
-        setAddPlacePopupOpen(false);
         setLoading(false);
       });
   }
@@ -222,7 +262,6 @@ function App() {
           />
           <Login onLogin={handleLogin} />
         </Route>
-        
 
         <EditProfilePopup
           isOpen={isEditProfilePopupOpen}
@@ -248,7 +287,7 @@ function App() {
           name="image"
           isOpen={isImagePopupOpen}
         ></ImagePopup>
-        <InfoTooltip />
+        <InfoTooltip isOpen={isRegNotifyOpen} onClose={closeAllPopups} />
       </CurrentUserContext.Provider>
     </div>
   );

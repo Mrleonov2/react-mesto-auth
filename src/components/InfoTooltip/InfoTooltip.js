@@ -2,10 +2,10 @@ import React from "react";
 import "./InfoTooltip.css";
 import registerSucces from "../../images/icon-succes.svg";
 import registerFailed from "../../images/Union.svg";
-function InfoTooltip({ isOpen, onClose, res }) {
+function InfoTooltip({ isOpen, onClose }) {
   return (
     <div
-      className={`popup ${isOpen ? "popup_opened" : ""}`}
+      className={`popup ${isOpen.isOpen ? "popup_opened" : ""}`}
       onClick={onClose}
     >
       <div className="popup__container">
@@ -17,9 +17,15 @@ function InfoTooltip({ isOpen, onClose, res }) {
         <img
           className="tooltip__image"
           alt="Уведомление"
-          src={registerSucces}
+          src={isOpen.success ? registerSucces : registerFailed}
         />
-        <h2 className="tooltip__heading">Вы успешно зерегистрировались</h2>
+        {isOpen.success ? (
+          <h2 className="tooltip__heading">Вы успешно зарегистрировались!</h2>
+        ) : (
+          <h2 className="tooltip__heading">
+            Что-то пошло не так!Попробуйте ещё раз.
+          </h2>
+        )}
       </div>
     </div>
   );
